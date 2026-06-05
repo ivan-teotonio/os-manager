@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  openedOrders        ServiceOrder[]        @relation("OpenedBy")
+  serviceOrderHistory ServiceOrderHistory[]
+
+  @@map("user")
+}
+
+model Client {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String
+  address   String?
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  equipments    Equipment[]
+  serviceOrders ServiceOrder[]
+
+  @@map("client")
+}
+
+model Technician {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String
+  specialty String
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  serviceOrders ServiceOrder[]
+
+  @@map("technician")
+}
+
+model Equipment {
+  id           Int       @id @default(autoincrement())
+  name         String
+  model        String
+  serialNumber String    @map("serial_number")
+  clientId     Int       @map("client_id")
+  deletedAt    DateTime? @map("deleted_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  client        Client         @relation(fields: [clientId], references: [id])
+  serviceOrders ServiceOrder[]
+
+  @@map("equipment")
+}
+
+model ServiceOrder {
+  id           Int                  @id @default(autoincrement())
+  title        String
+  description  String
+  status       ServiceOrderStatus   @default(ABERTA)
+  priority     ServiceOrderPriority @default(MEDIA)
+  clientId     Int                  @map("client_id")
+  technicianId Int?                 @map("technician_id")
+  equipmentId  Int?                 @map("equipment_id")
+  openedById   Int                  @map("opened_by_id")
+  openedAt     DateTime             @default(now()) @map("opened_at")
+  concludedAt  DateTime?            @map("concluded_at")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+
+  client     Client                @relation(fields: [clientId], references: [id])
+  technician Technician?           @relation(fields: [technicianId], references: [id])
+  equipment  Equipment?            @relation(fields: [equipmentId], references: [id])
+  openedBy   User                  @relation("OpenedBy", fields: [openedById], references: [id])
+  history    ServiceOrderHistory[]
+
+  @@map("service_order")
+}
+
+model ServiceOrderHistory {
+  id             Int      @id @default(autoincrement())
+  serviceOrderId Int      @map("service_order_id")
+  changedById    Int      @map("changed_by_id")
+  previousStatus String?  @map("previous_status")
+  newStatus      String   @map("new_status")
+  observation    String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id])
+  changedBy    User         @relation(fields: [changedById], references: [id])
+
+  @@map("service_order_history")
+}
+
+enum ServiceOrderStatus {
+  ABERTA
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+}
+
+enum ServiceOrderPriority {
+  BAIXA
+  MEDIA
+  ALTA
+}
