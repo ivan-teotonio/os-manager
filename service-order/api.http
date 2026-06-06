@@ -1,0 +1,125 @@
+@baseUrl = http://localhost:3000
+@token = {{login.response.body.accessToken}}
+
+### 1. Registrar usuário
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ana Costa",
+  "email": "ana@osmanager.com",
+  "password": "123456"
+}
+
+### 2. Login
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ana@osmanager.com",
+  "password": "123456"
+}
+
+### 3. Criar cliente
+POST {{baseUrl}}/api/clients
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Empresa ABC",
+  "email": "contato@abc.com",
+  "phone": "(81) 99999-1111",
+  "address": "Rua das Flores, 123"
+}
+
+### 4. Listar clientes
+GET {{baseUrl}}/api/clients
+Authorization: Bearer {{token}}
+
+### 5. Criar técnico
+POST {{baseUrl}}/api/technicians
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "João Silva",
+  "email": "joao@osmanager.com",
+  "phone": "(81) 99999-2222",
+  "specialty": "Elétrica"
+}
+
+### 6. Criar equipamento
+POST {{baseUrl}}/api/equipments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Compressor AR-200",
+  "model": "AR-200 Pro",
+  "serialNumber": "SN-001-2024",
+  "clientId": 1
+}
+
+### 7. Abrir OS
+POST {{baseUrl}}/api/service-orders
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Compressor sem pressão",
+  "description": "O compressor perdeu pressão",
+  "priority": "ALTA",
+  "clientId": 1,
+  "equipmentId": 1
+}
+
+### 8. Listar OS
+GET {{baseUrl}}/api/service-orders
+Authorization: Bearer {{token}}
+
+### 9. Atribuir técnico
+PATCH {{baseUrl}}/api/service-orders/1/assign-technician
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "technicianId": 1
+}
+
+### 10. Concluir OS
+PATCH {{baseUrl}}/api/service-orders/1/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "CONCLUIDA",
+  "observation": "Problema resolvido"
+}
+
+### 11. Ver OS com histórico
+GET {{baseUrl}}/api/service-orders/1
+Authorization: Bearer {{token}}
+
+### 12. Ver histórico de status
+GET http://localhost:3000/api/service-orders/1
+Authorization: Bearer {{token}}
+
+###
+PATCH {{baseUrl}}/api/service-orders/1/assign-technician
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "technicianId": 1
+}
+
+###
+PATCH {{baseUrl}}/api/service-orders/1/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "CONCLUIDA",
+  "observation": "Problema resolvido. Válvula de pressão substituída."
+}

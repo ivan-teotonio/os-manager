@@ -49,7 +49,7 @@ export class ClientService {
     }>,
   ) {
     await this.findById(id);
-    return await prisma.clientupdate({ where: { id }, data });
+    return await prisma.client.update({ where: { id }, data });
   }
 
   async delete(id: number) {

@@ -28,4 +28,20 @@ export class AuthService {
       createdAt: user.createdAt,
     };
   }
+
+  async login(email: string, password: string) {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new Error("Email ou senha inválidos");
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+  }
 }

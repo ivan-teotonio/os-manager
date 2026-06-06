@@ -1,6 +1,6 @@
 import { prisma } from "@/app/lib/prisma";
 
-export class EquipamentService {
+export class EquipmentService {
   async create(data: {
     name: string;
     model: string;

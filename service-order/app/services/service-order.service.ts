@@ -1,11 +1,17 @@
-import { prisma } from "../lib/prisma";
-import { ServiceOrderStatus, ServiceOrderPriority } from "@prisma/client";
+import { prisma } from "@/app/lib/prisma";
+
+export type ServiceOrderStatus =
+  | "ABERTA"
+  | "EM_ANDAMENTO"
+  | "CONCLUIDA"
+  | "CANCELADA";
+export type ServiceOrderPriority = "BAIXA" | "MEDIA" | "ALTA";
 
 const VALID_TRANSITIONS: Record<ServiceOrderStatus, ServiceOrderStatus[]> = {
-  ABERTO: ["EM_ANDAMENTO", "CANCELADO"],
-  EM_ANDAMENTO: ["CONCLUIDO", "CANCELADO"],
-  CONCLUIDO: [],
-  CANCELADO: [],
+  ABERTA: ["EM_ANDAMENTO", "CANCELADA"],
+  EM_ANDAMENTO: ["CONCLUIDA", "CANCELADA"],
+  CONCLUIDA: [],
+  CANCELADA: [],
 };
 
 export class ServiceOrderService {
@@ -14,8 +20,9 @@ export class ServiceOrderService {
     description: string;
     priority: ServiceOrderPriority;
     clientId: number;
-    technicianId: number;
-    equipmentId: number;
+    openedById: number;
+    technicianId?: number;
+    equipmentId?: number;
   }) {
     return await prisma.$transaction(async (tx) => {
       const order = await tx.serviceOrder.create({ data });
@@ -25,10 +32,11 @@ export class ServiceOrderService {
           serviceOrderId: order.id,
           changedById: data.openedById,
           previousStatus: null,
-          newsStatus: "ABERTO",
-          observations: "Ordem de serviço criada",
+          newStatus: "ABERTA",
+          observation: "Ordem de serviço aberta",
         },
       });
+
       return order;
     });
   }
@@ -58,6 +66,7 @@ export class ServiceOrderService {
       }),
       prisma.serviceOrder.count({ where }),
     ]);
+
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
@@ -81,8 +90,9 @@ export class ServiceOrderService {
 
   async assignTechnician(id: number, technicianId: number, userId: number) {
     const order = await this.findById(id);
-    if (order.status !== "ABERTA")
+    if (order.status !== "ABERTA") {
       throw new Error("Só é possível atribuir técnico em OS com status ABERTA");
+    }
 
     return await prisma.$transaction(async (tx) => {
       const updated = await tx.serviceOrder.update({
@@ -95,28 +105,26 @@ export class ServiceOrderService {
           serviceOrderId: id,
           changedById: userId,
           previousStatus: "ABERTA",
-          newsStatus: "EM_ANDAMENTO",
-          observation:
-            "Técnico atribuído e status atualizado para EM_ANDAMENTO",
+          newStatus: "EM_ANDAMENTO",
+          observation: "Técnico atribuído",
         },
       });
+
       return updated;
     });
   }
 
-  async updatedStatus(
+  async updateStatus(
     id: number,
     newStatus: ServiceOrderStatus,
     userId: number,
     observation?: string,
   ) {
     const order = await this.findById(id);
-    const allowed = VALID_TRANSITIONS[order.status];
+    const allowed = VALID_TRANSITIONS[order.status as ServiceOrderStatus];
 
     if (!allowed.includes(newStatus)) {
-      throw new Error(
-        `Transição de status inválida de ${order.status} para ${newStatus}`,
-      );
+      throw new Error(`Transição inválida: ${order.status} → ${newStatus}`);
     }
 
     return await prisma.$transaction(async (tx) => {
@@ -124,9 +132,10 @@ export class ServiceOrderService {
         where: { id },
         data: {
           status: newStatus,
-          concludedAt: newStatus === "CONCLUIDO" ? new Date() : undefined,
+          concludedAt: newStatus === "CONCLUIDA" ? new Date() : undefined,
         },
       });
+
       await tx.serviceOrderHistory.create({
         data: {
           serviceOrderId: id,
@@ -136,17 +145,17 @@ export class ServiceOrderService {
           observation: observation ?? null,
         },
       });
+
       return updated;
     });
   }
 
   async addObservation(id: number, userId: number, observation: string) {
     const order = await this.findById(id);
-    if (order.status === "CONCLUIDO" || order.status === "CANCELADO") {
-      throw new Error(
-        "Não é possível adicionar observação em OS concluída ou cancelada",
-      );
+    if (order.status === "CONCLUIDA" || order.status === "CANCELADA") {
+      throw new Error("Não é possível adicionar observação em OS finalizada");
     }
+
     await prisma.serviceOrderHistory.create({
       data: {
         serviceOrderId: id,
@@ -156,6 +165,7 @@ export class ServiceOrderService {
         observation,
       },
     });
-    return { message: "Observação adicionada com sucesso" };
+
+    return { message: "Observação adicionada" };
   }
 }
