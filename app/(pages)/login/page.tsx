@@ -156,7 +156,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => router.push("/register")}
                 className="w-full h-10 border border-gray-200 text-gray-600
-                text-sm font-medium rounded-lg hover:bg-gray-50 transiction-colors"
+                text-sm font-medium rounded-lg hover:bg-gray-50 transiction-colors "
               >
                 Cadastrar
               </button>
