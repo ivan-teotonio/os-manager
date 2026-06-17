@@ -5,6 +5,44 @@ import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [step, setStep] = useState(1); //1 valida cpf, 2 completa dados
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [cpf, setCpf] = useState("");
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleValidateCpf() {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/validate-cpf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cpf }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || "CPF não autorizado");
+        return;
+      }
+      setUserName(data.userName); //retorno da api
+      setStep(2); //avança para o próximo passo
+    } catch {
+      setError("Erro ao validar CPF. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleCompleteRegistration() {
+    //chamada para api
+    console.log("Dados enviados:", { cpf, email, password });
+    //salvar e redirecionar
+    router.push("/login");
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -13,50 +51,99 @@ export default function RegisterPage() {
         {/* Formulário de Cadastro (lado direito) */}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="w-full max-w-sm">
-            <div className="mb-6">
-              {/* O título 'Crie sua conta' foi mantido no formulário para clareza */}
+            <h2 className="text-lg font-medium text-gray-900 mb-6">
+              {step === 1 ? "Validação de CPF" : "Complete seu cadastro"}
+            </h2>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
+            {/* <div className="mb-6">
               <h2 className="text-lg font-medium text-gray-900 mb-1">
                 Crie sua conta
               </h2>
               <p className="text-sm text-gray-500">
                 Informe seu CPF para continuar
               </p>
+            </div> */}
+
+            <div className="space-y-4">
+              {step === 1 ? (
+                <>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1.5">
+                      CPF
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="000.000.000-00"
+                      value={cpf}
+                      onChange={(e) => setCpf(e.target.value)}
+                      className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-[#1B3A5C]"
+                    />
+                    <button
+                      onClick={handleValidateCpf}
+                      disabled={loading}
+                      className="w-full h-10 bg-[#1B3A5C] text-white rounded-lg"
+                    >
+                      {loading ? "Validando..." : "Validar CPF"}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1.5">
+                      Nome
+                    </label>
+                    <input
+                      type="text"
+                      value={userName}
+                      disabled
+                      className="w-full h-10 px-3 text-sm bg-gray-50 border rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1.5">
+                      E-mail
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full h-10 px-3 tex-sm border border-gray-200 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1.5">
+                      Senha
+                    </label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg"
+                    />
+                  </div>
+                  <button
+                    onClick={handleCompleteRegistration}
+                    className="w-full h-10 bg-[#1B3A5C] text-white rounded-lg"
+                  >
+                    Completar Cadastro
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={() => (step === 2 ? setStep(1) : router.back())}
+                className="w-full h-10 border border-gray-200 text-gray-600 text-sm rounded-lg"
+              >
+                {step === 2 ? "Voltar" : "Cancelar"}
+              </button>
             </div>
-
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1.5">
-                  CPF
-                </label>
-                <input
-                  type="text"
-                  placeholder="000.000.000-00"
-                  // Estilos de input idênticos ao login (borda azul no focus, tamanho h-10)
-                  className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-[#1B3A5C] focus:ring-1 focus:ring-[#1B3A5C] transition-colors"
-                />
-              </div>
-
-              <button
-                type="button"
-                // Botão primário com a cor #1B3A5C e h-10
-                className="w-full h-10 bg-[#1B3A5C] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
-              >
-                Validar CPF
-              </button>
-
-              <button
-                type="button"
-                onClick={() => router.back()}
-                // Botão secundário idêntico ao login (border, texto cinza)
-                className="w-full h-10 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Voltar
-              </button>
-            </form>
-            {/* Copyright centralizado no formulário */}
-            <p className="text-xs text-gray-400 text-center mt-6">
-              OS Manager © 2026
-            </p>
           </div>
         </div>
       </div>
