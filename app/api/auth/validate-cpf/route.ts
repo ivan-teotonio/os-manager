@@ -6,7 +6,7 @@ const authService = new AuthService();
 export async function POST(req: Request) {
   try {
     const { cpf } = await req.json();
-    const user = await authService.validaCpf(cpf);
+    const user = await authService.validateCpf(cpf);
     return NextResponse.json(user);
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 400 });
