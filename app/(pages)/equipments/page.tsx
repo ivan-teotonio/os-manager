@@ -9,7 +9,7 @@ interface Equipment {
   name: string;
   model: string;
   serialNumber: string;
-  client: {
+  client?: {
     id: number;
     name: string;
   };
@@ -119,10 +119,11 @@ export default function EquipmentsPage() {
   function handleEdit(equipment: Equipment) {
     setEditingEquipment(equipment);
     setForm({
-      name: equipment.name,
-      model: equipment.model,
-      serialNumber: equipment.serialNumber,
-      clientId: equipment.client ? equipment.client.id.toString() : "",
+      name: equipment.name || "",
+      model: equipment.model || "",
+      serialNumber: equipment.serialNumber || "",
+      // Usamos o encadeamento opcional (?.) para evitar o erro de 'undefined'
+      clientId: equipment.client?.id ? equipment.client.id.toString() : "",
     });
     setShowForm(true);
   }
