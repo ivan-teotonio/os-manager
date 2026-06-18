@@ -283,7 +283,7 @@ export default function EquipmentsPage() {
                       {equipment.serialNumber}
                     </td>
                     <td className="px-4 py-3 text-gray-600">
-                      {equipment.client.name}
+                      {equipment.client?.name || "Sem cliente"}
                     </td>
                     <td className="px-4 py-3 flex gap-2">
                       <button
