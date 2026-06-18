@@ -79,6 +79,18 @@ export default function EquipmentsPage() {
     setError("");
 
     try {
+      // Validação básica: impede envio se clientId estiver vazio
+      if (!form.clientId) {
+        throw new Error("Por favor, selecione um cliente.");
+      }
+
+      const payload = {
+        name: form.name,
+        model: form.model,
+        serialNumber: form.serialNumber,
+        clientId: Number(form.clientId),
+      };
+
       const url = editingEquipment
         ? `/api/equipments/${editingEquipment.id}`
         : "/api/equipments";
@@ -90,17 +102,20 @@ export default function EquipmentsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...form, clientId: Number(form.clientId) }),
+        body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Erro ao salvar equipamento.");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Erro ao salvar.");
+      }
 
       setShowForm(false);
       setForm({ name: "", model: "", serialNumber: "", clientId: "" });
       setEditingEquipment(null);
       fetchEquipments(token);
-    } catch {
-      setError("Erro ao salvar equipamento.");
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setSaving(false);
     }
