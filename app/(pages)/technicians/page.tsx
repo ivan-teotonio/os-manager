@@ -64,7 +64,7 @@ export default function TechniciansPage() {
       const url = editingTechnician
         ? `/api/technicians/${editingTechnician.id}`
         : "/api/technicians";
-      const method = editingTechnician ? "PUT" : "POST";
+      const method = editingTechnician ? "PATCH" : "POST";
 
       const res = await fetch(url, {
         method,
