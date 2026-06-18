@@ -215,7 +215,7 @@ npm run dev
 # http://localhost:3000
 ```
 
-###Deploy em Produção (Vercel + AWS RDS)
+### Deploy em Produção (Vercel + AWS RDS)
 
 ## Para colocar o sistema em produção, utilizamos infraestrutura na nuvem para alta disponibilidade.
 # 1. Configuração do Banco de Dados (AWS RDS)
