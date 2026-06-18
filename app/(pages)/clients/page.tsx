@@ -18,6 +18,7 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -53,31 +54,62 @@ export default function ClientsPage() {
     }
   }
 
+  // async function handleSave() {
+  //   const token = localStorage.getItem("accessToken")!;
+  //   setSaving(true);
+  //   setError("");
+  //   try {
+  //     const res = await fetch("/api/clients", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify(form),
+  //     });
+  //     const data = await res.json();
+  //     if (!res.ok) {
+  //       setError(data.message);
+  //       return;
+  //     }
+  //     setShowForm(false);
+  //     setForm({ name: "", email: "", phone: "", address: "" });
+  //     fetchClients(token);
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // }
+
   async function handleSave() {
-    const token = localStorage.getItem("accessToken")!;
+    const token = localStorage.getItem("accessToken")!; 
     setSaving(true);
     setError("");
+
     try {
-      const res = await fetch("/api/clients", {
-        method: "POST",
+      const url = editingClient ? `/api/clients/${editingClient.id}` : "/api/clients"; 
+      const method = editingClient ? "PATCH" : "POST"; 
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message);
-        return;
-      }
-      setShowForm(false);
-      setForm({ name: "", email: "", phone: "", address: "" });
-      fetchClients(token);
+      }); 
+
+      if (!res.ok) throw new Error("Erro ao salvar cliente."); 
+      setShowForm(false); 
+      setEditingClient(null); // limpa o estado 
+      setForm({ name: "", email: "", phone: "", address: "" }); 
+      fetchClients(token); // recarrega a lista
+
+    } catch {
+      setError("Erro ao salvar cliente.");
     } finally {
       setSaving(false);
     }
-  }
+  } 
 
   async function handleDelete(id: number) {
     if (!confirm("Deseja remover este cliente?")) return;
@@ -93,6 +125,41 @@ export default function ClientsPage() {
     const token = localStorage.getItem("accessToken")!;
     setSearch(e.target.value);
     fetchClients(token, e.target.value);
+  }
+
+  async function handleUpdateClient(id: number, updatedData: any) {
+    try {
+      const response = await fetch(`/api/clients/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Lembre-se de passar seu token de autenticação
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar o cliente.");
+      }
+
+      alert("Cliente atualizado com sucesso!");
+      // Aqui você pode recarregar a lista ou atualizar o estado local
+    } catch (error) {
+      console.error("Erro na atualização:", error);
+      alert("Não foi possível salvar as alterações.");
+    }
+  }
+
+  function handleEdit(client: Client) {
+    setEditingClient(client); // guarda o cliente que está sendo editado 
+    setForm({
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      address: client.address,
+    });
+    setShowForm(true); // abre o formulário para edição 
+    }
   }
 
   return (
@@ -247,7 +314,13 @@ export default function ClientsPage() {
                     <td className="px-4 py-3 text-gray-600">
                       {client.address || "—"}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 flex gap-2">
+                      <button 
+                        onClick={() => handleEdit(client)} 
+                        className="text-xs text-blue-500 hover:text-blue-700"
+                      >
+                        Editar
+                      </button>
                       <button
                         onClick={() => handleDelete(client.id)}
                         className="text-xs text-red-500 hover:text-red-700 transition-colors"
