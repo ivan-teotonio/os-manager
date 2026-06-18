@@ -168,7 +168,7 @@ export default function EquipmentsPage() {
               setForm({ name: "", model: "", serialNumber: "", clientId: "" });
               setShowForm(true);
             }}
-            className="..."
+            className="bg-[#1B3A5C] text-white text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
           >
             + Novo equipamento
           </button>
@@ -178,7 +178,7 @@ export default function EquipmentsPage() {
           <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
               <h2 className="text-base font-medium text-gray-900 mb-4">
-                Novo equipamento
+                {editingEquipment ? "Editar equipamento" : "Novo equipamento"}
               </h2>
 
               {error && (
