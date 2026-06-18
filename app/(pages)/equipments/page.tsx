@@ -119,7 +119,7 @@ export default function EquipmentsPage() {
       name: equipment.name,
       model: equipment.model,
       serialNumber: equipment.serialNumber,
-      clientId: equipment.client.id.toString(),
+      clientId: equipment.client ? equipment.client.id.toString() : "",
     });
     setShowForm(true);
   }
