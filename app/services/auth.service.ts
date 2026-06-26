@@ -46,7 +46,8 @@ export class AuthService {
   }
 
   async validateCpf(cpf: string) {
-    const user = await prisma.user.findUnique({ where: { cpf } });
+    const cpfLimpo = cpf.replace(/\D/g, "");
+    const user = await prisma.user.findUnique({ where: { cpf: cpfLimpo } });
     if (!user) throw new Error("CPF não encontrado");
     if (user.isActive) throw new Error("CPF já ativo. Faça o login");
 
