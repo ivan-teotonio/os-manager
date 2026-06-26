@@ -37,7 +37,7 @@ export default function RegisterPage() {
         setError(data.message || "CPF não autorizado");
         return;
       }
-      setUserName(data.userName); //retorno da api
+      setUserName(data.name); //retorno da api
       setStep(2); //avança para o próximo passo
     } catch {
       setError("Erro ao validar CPF. Tente novamente.");
