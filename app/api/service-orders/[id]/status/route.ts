@@ -4,6 +4,7 @@ import {
   ServiceOrderStatus,
 } from "@/app/services/service-order.service";
 import { verifyToken } from "@/app/lib/jwt";
+import { enviarParaFila } from "@/app/lib/sqs";
 
 const serviceOrderService = new ServiceOrderService();
 
@@ -39,6 +40,16 @@ export async function PATCH(
       userId,
       observation,
     );
+
+    // Dispara o evento para a fila
+    await enviarParaFila({
+      evento: "STATUS_ALTERADO", // Esta é a chave!
+      osId: order.id,
+      clientId: order.clientId,
+      technicianId: order.technicianId,
+      novoStatus: status,
+      data: new Date().toISOString(),
+    });
 
     return NextResponse.json(order);
   } catch (error) {
