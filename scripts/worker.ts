@@ -14,7 +14,7 @@ const serviceOrderService = new ServiceOrderService();
 const clientService = new ClientService();
 const techService = new TechnicianService();
 
-async function processarFila() {
+export async function processarFila() {
   // Configuração do Ethereal (teste)
   const testAccount = await nodemailer.createTestAccount();
   const transporter = nodemailer.createTransport({
