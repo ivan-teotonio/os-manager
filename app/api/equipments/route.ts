@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     if (!getUserId(req)) {
       return NextResponse.json({ message: "Não autorizado" }, { status: 401 });
     }
-    const { name, model, serialNumber, clientId } = await req.json();
+    const { name, model, serialNumber, clientId, imageUrl } = await req.json();
 
     if (!name || !model || !serialNumber || !clientId) {
       return NextResponse.json(
@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
       model,
       serialNumber,
       clientId,
+      imageUrl: imageUrl || null, // Adiciona o campo imageUrl
     });
     return NextResponse.json(equipment, { status: 201 });
   } catch (error) {
