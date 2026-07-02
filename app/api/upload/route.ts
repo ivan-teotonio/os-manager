@@ -24,8 +24,9 @@ export async function POST(req: NextRequest) {
     const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
     return NextResponse.json({ url, key });
   } catch (error) {
+    console.error("Erro no S3:", error); // Isso aparecerá nos logs da Vercel
     return NextResponse.json(
-      { message: "Erro ao gerar URL de upload" },
+      { message: "Erro ao preparar upload" },
       { status: 500 },
     );
   }
