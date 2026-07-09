@@ -15,6 +15,7 @@ interface Technician {
 interface Equipment {
   id: number;
   name: string;
+  technicianId?: number;
   client: { name: string };
 }
 
@@ -222,7 +223,7 @@ export default function NewServiceOrderPage() {
                 <label className="block text-sm text-gray-600 mb-1.5">
                   Técnico
                 </label>
-                <select
+                {/* <select
                   value={form.technicianId}
                   onChange={(e) =>
                     setForm({ ...form, technicianId: e.target.value })
@@ -255,6 +256,33 @@ export default function NewServiceOrderPage() {
                       {e.name} — {e.client.name}
                     </option>
                   ))}
+                </select> */}
+
+                <select
+                  value={form.equipmentId}
+                  onChange={(e) =>
+                    setForm({ ...form, equipmentId: e.target.value })
+                  }
+                  className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-[#1B3A5C] bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  disabled={!form.technicianId} // Bloqueia se o técnico não for escolhido
+                >
+                  <option value="">
+                    {form.technicianId
+                      ? "Selecione o equipamento..."
+                      : "Escolha um técnico primeiro"}
+                  </option>
+
+                  {equipments
+                    .filter(
+                      (e) =>
+                        !form.technicianId ||
+                        e.technicianId === Number(form.technicianId),
+                    )
+                    .map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.name} — {e.client.name}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
