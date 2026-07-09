@@ -258,7 +258,7 @@ export default function NewServiceOrderPage() {
                   ))}
                 </select>
 
-                <select
+                {/* <select
                   value={form.equipmentId}
                   onChange={(e) =>
                     setForm({ ...form, equipmentId: e.target.value })
@@ -283,7 +283,7 @@ export default function NewServiceOrderPage() {
                         {e.name} — {e.client.name}
                       </option>
                     ))}
-                </select>
+                </select> */}
               </div>
             </div>
           </div>
