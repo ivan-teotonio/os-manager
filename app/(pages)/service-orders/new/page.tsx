@@ -223,7 +223,7 @@ export default function NewServiceOrderPage() {
                 <label className="block text-sm text-gray-600 mb-1.5">
                   Técnico
                 </label>
-                {/* <select
+                <select
                   value={form.technicianId}
                   onChange={(e) =>
                     setForm({ ...form, technicianId: e.target.value })
@@ -256,7 +256,7 @@ export default function NewServiceOrderPage() {
                       {e.name} — {e.client.name}
                     </option>
                   ))}
-                </select> */}
+                </select>
 
                 <select
                   value={form.equipmentId}
