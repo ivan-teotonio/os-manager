@@ -174,6 +174,13 @@ async function enviarEmail(
     text: corpo,
   });
 
+  const url = nodemailer.getTestMessageUrl(info);
+  console.log("========================================");
+  console.log("E-MAIL DISPARADO COM SUCESSO!");
+  console.log("DESTINO:", destinatario);
+  console.log("LINK PARA VER O E-MAIL (COPIE E COLE):", url);
+  console.log("========================================");
+
   // O pulo do gato: imprime a URL do e-mail no Log da Vercel
   console.log(
     "E-mail enviado! Veja aqui: %s",
